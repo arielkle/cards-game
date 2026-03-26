@@ -61,6 +61,7 @@
             const [currentCard, setCurrentCard] = useState(null);
             const [isAnimating, setIsAnimating] = useState(false);
             const [failedImages, setFailedImages] = useState(new Set());
+            const [showResetModal, setShowResetModal] = useState(false); // משתנה חדש לשליטה בחלון הקופץ
 
             const drawCard = () => {
                 if (deck.length === 0) return;
@@ -79,12 +80,22 @@
                 }, 400);
             };
 
-            const resetGame = () => {
-                if (window.confirm('האם את/ה בטוח/ה שברצונך להתחיל משחק חדש?')) {
-                    setDeck(generateInitialDeck());
-                    setCurrentCard(null);
-                    setFailedImages(new Set());
-                }
+            // הפונקציה שפותחת את החלון הקופץ
+            const triggerReset = () => {
+                setShowResetModal(true);
+            };
+
+            // הפונקציה שמאשרת את האיפוס בפועל
+            const confirmReset = () => {
+                setDeck(generateInitialDeck());
+                setCurrentCard(null);
+                setFailedImages(new Set());
+                setShowResetModal(false);
+            };
+
+            // הפונקציה שמבטלת את האיפוס וסוגרת את החלון
+            const cancelReset = () => {
+                setShowResetModal(false);
             };
 
             return (
@@ -161,7 +172,7 @@
 
                             {/* כפתור התחלת משחק מחדש */}
                             <button 
-                                onClick={resetGame} 
+                                onClick={triggerReset} 
                                 className="w-full flex items-center justify-center gap-3 text-pink-500 hover:text-white transition-all py-4 rounded-2xl hover:bg-pink-400 shadow-sm border-2 border-pink-200 hover:border-pink-400 font-semibold text-lg" 
                                 title="התחל מחדש"
                             >
@@ -171,6 +182,30 @@
                         </div>
 
                     </div>
+
+                    {/* חלון קופץ (מודאל) אישי ומעוצב לאישור התחלה מחדש */}
+                    {showResetModal && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+                            <div className="bg-white p-8 rounded-3xl shadow-2xl max-w-sm w-full text-center transform transition-all">
+                                <h3 className="text-2xl font-bold text-slate-800 mb-3">התחלת משחק מחדש</h3>
+                                <p className="text-slate-600 mb-8">האם ברצונך לערבב את הקלפים ולהתחיל משחק חדש?</p>
+                                <div className="flex gap-4 justify-center">
+                                    <button
+                                        onClick={cancelReset}
+                                        className="px-6 py-2 rounded-xl text-slate-500 font-medium hover:bg-slate-100 transition-colors border border-slate-200"
+                                    >
+                                        ביטול
+                                    </button>
+                                    <button
+                                        onClick={confirmReset}
+                                        className="px-6 py-2 rounded-xl bg-pink-500 text-white font-medium hover:bg-pink-600 shadow-md transition-colors"
+                                    >
+                                        כן, מחדש
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </div>
             );
         }
