@@ -51,8 +51,8 @@
         const generateInitialDeck = () => {
             return Array.from({ length: 36 }, (_, i) => ({
                 id: i + 1,
-                // עדכנתי את הסיומת ל-.png לפי הבקשה שלך
-                image: 'card' + (i + 1) + '.png', 
+                // הוספתי ./ חזרה כדי לעזור ל-GitHub Pages לנווט נכון לקבצים
+                image: './card' + (i + 1) + '.png', 
             }));
         };
 
