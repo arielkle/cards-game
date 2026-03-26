@@ -51,8 +51,8 @@
         const generateInitialDeck = () => {
             return Array.from({ length: 36 }, (_, i) => ({
                 id: i + 1,
-                // הוספתי ./ חזרה כדי לעזור ל-GitHub Pages לנווט נכון לקבצים
-                image: './card' + (i + 1) + '.png', 
+                // הסרתי את הנקודה והלוכסן כדי לנסות נתיב יחסי נקי
+                image: 'card' + (i + 1) + '.png', 
             }));
         };
 
@@ -124,11 +124,11 @@
                                             <img 
                                                 src={currentCard.image} 
                                                 alt={`קלף ${currentCard.id}`} 
-                                                className="w-full h-full object-cover"
+                                                className="w-full h-full object-contain"
                                                 onError={() => setFailedImages(prev => new Set(prev).add(currentCard.id))}
                                             />
                                         ) : (
-                                            <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-white">
+                                            <div className="w-full h-full bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex flex-col items-center justify-center text-white p-6">
                                                 <span className="text-2xl font-medium mb-4 opacity-80">קלף מספר</span>
                                                 <span className="text-9xl font-black drop-shadow-lg">{currentCard.id}</span>
                                             </div>
