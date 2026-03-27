@@ -62,6 +62,7 @@
             const [isAnimating, setIsAnimating] = useState(false);
             const [failedImages, setFailedImages] = useState(new Set());
             const [showResetModal, setShowResetModal] = useState(false); // משתנה חדש לשליטה בחלון הקופץ
+            const [currentScreen, setCurrentScreen] = useState('intro'); // משתנה למעבר בין מסך הפתיחה למשחק
 
             const drawCard = () => {
                 if (deck.length === 0) return;
@@ -98,6 +99,49 @@
                 setShowResetModal(false);
             };
 
+            // --- מסך הפתיחה וההנחיות ---
+            if (currentScreen === 'intro') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center py-10 px-4 relative">
+                        <div className="w-full max-w-3xl flex flex-col items-center bg-white/70 backdrop-blur-md p-10 md:p-14 rounded-[2.5rem] shadow-xl border border-white/60 text-center relative z-10">
+                            
+                            {/* כותרת */}
+                            <h1 className="text-5xl md:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-sky-500 via-purple-500 to-pink-500 mb-8 flex items-center justify-center gap-4 drop-shadow-sm">
+                                <SparklesIcon />
+                                קלף בהפתעה
+                                <SparklesIcon />
+                            </h1>
+                            
+                            {/* תיבת ההנחיות */}
+                            <div className="text-right w-full bg-white/80 p-8 rounded-3xl mb-10 shadow-sm border border-white">
+                                <h2 className="text-3xl font-bold text-slate-800 mb-6 border-b-2 border-purple-100 pb-4">הנחיות המשחק</h2>
+                                
+                                <div className="space-y-6 text-slate-700 text-lg leading-relaxed">
+                                    <div>
+                                        <h3 className="font-bold text-xl text-purple-600 mb-1 flex items-center gap-2">👑 הפעלת המשחק</h3>
+                                        <p>המשחק מופעל על ידי המורה בלבד. המורה מציג/ה את המשחק על הלוח החכם בכיתה או בשיתוף מסך, ומנהל/ת את הפעילות מול הכיתה.</p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h3 className="font-bold text-xl text-pink-600 mb-1 flex items-center gap-2">🎲 איך משחקים?</h3>
+                                        <p>המורה לוחץ/ת על כפתור <b>"הגרילו קלף"</b>. קלף אקראי מתוך הערימה ייחשף בגדול על המסך. לאחר חשיפת הקלף, המורה תבחר תלמיד או תלמידה ותבקש מהם להגיב, לענות או לשתף בהתאם למה שמופיע בקלף.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* כפתור כניסה למשחק */}
+                            <button 
+                                onClick={() => setCurrentScreen('game')}
+                                className="w-full sm:w-auto px-16 py-5 rounded-full text-2xl font-bold text-white shadow-[0_10px_20px_rgba(236,72,153,0.3)] transition-all duration-300 bg-gradient-to-r from-sky-400 via-purple-400 to-pink-400 hover:from-sky-500 hover:via-purple-500 hover:to-pink-500 hover:shadow-[0_15px_30px_rgba(168,85,247,0.4)] hover:-translate-y-2"
+                            >
+                                התחילו לשחק!
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // --- מסך המשחק עצמו ---
             return (
                 <div className="min-h-screen flex flex-col items-center py-10 px-4">
                     
