@@ -61,17 +61,22 @@
             const [showResetModal, setShowResetModal] = useState(false);
             const [currentScreen, setCurrentScreen] = useState('intro');
 
-            // טעינה מראש של כל הקלפים (מ-0 עד 36) כדי למנוע השהיה בזמן המשחק
+            // טעינה חכמה: קודם גב החפיסה, ורק אחרי שהמסך עולה - שאר הקלפים ברקע
             useEffect(() => {
-                const preload = () => {
-                    const images = ['card0.png'];
-                    for(let i=1; i<=36; i++) images.push(`card${i}.png`);
-                    images.forEach(src => {
+                // 1. טעינה מיידית של גב הקלף (card0.png) כדי שיופיע מיד
+                const coverImg = new Image();
+                coverImg.src = 'card0.png';
+
+                // 2. טעינת שאר הקלפים בדיליי של שנייה וחצי כדי לא לתקוע את עליית המשחק
+                const timer = setTimeout(() => {
+                    for(let i = 1; i <= 36; i++) {
                         const img = new Image();
-                        img.src = src;
-                    });
-                };
-                preload();
+                        img.src = `card${i}.png`;
+                    }
+                }, 1500);
+
+                // ניקוי הטיימר במקרה של סגירת הרכיב
+                return () => clearTimeout(timer);
             }, []);
 
             const drawCard = () => {
