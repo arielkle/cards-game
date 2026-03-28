@@ -57,26 +57,36 @@
             const [deck, setDeck] = useState(generateInitialDeck());
             const [currentCard, setCurrentCard] = useState(null);
             const [isAnimating, setIsAnimating] = useState(false);
+            const [isLoadingImage, setIsLoadingImage] = useState(false); // משתנה חדש למעקב אחר טעינת התמונה
             const [failedImages, setFailedImages] = useState(new Set());
             const [showResetModal, setShowResetModal] = useState(false);
             const [currentScreen, setCurrentScreen] = useState('intro');
 
-            // טעינה חכמה: קודם גב החפיסה, ורק אחרי שהמסך עולה - שאר הקלפים ברקע
+            // טעינה חכמה: גב החפיסה מיד, ואת השאר בתור מסודר (אחד-אחד) כדי לא לחסום את הרשת
             useEffect(() => {
-                // 1. טעינה מיידית של גב הקלף (card0.png) כדי שיופיע מיד
+                let isMounted = true;
+                
+                // 1. טעינה מיידית של גב הקלף
                 const coverImg = new Image();
                 coverImg.src = 'card0.png';
 
-                // 2. טעינת שאר הקלפים בדיליי של שנייה וחצי כדי לא לתקוע את עליית המשחק
-                const timer = setTimeout(() => {
+                // 2. פונקציה שטוענת קלף אחד בכל פעם ברקע
+                const preloadSequentially = async () => {
+                    await new Promise(resolve => setTimeout(resolve, 1500)); // דיליי התחלתי למניעת תקיעות
                     for(let i = 1; i <= 36; i++) {
-                        const img = new Image();
-                        img.src = `card${i}.png`;
+                        if (!isMounted) break;
+                        await new Promise(resolve => {
+                            const img = new Image();
+                            img.onload = resolve;
+                            img.onerror = resolve; // ממשיכים הלאה גם אם תמונה אחת פגומה
+                            img.src = `card${i}.png`;
+                        });
                     }
-                }, 1500);
+                };
 
-                // ניקוי הטיימר במקרה של סגירת הרכיב
-                return () => clearTimeout(timer);
+                preloadSequentially();
+
+                return () => { isMounted = false; };
             }, []);
 
             const drawCard = () => {
@@ -87,6 +97,7 @@
                     const randomIndex = Math.floor(Math.random() * deck.length);
                     const drawnCard = deck[randomIndex];
                     setCurrentCard(drawnCard);
+                    setIsLoadingImage(true); // מתחיל מצב "טוען" עבור הקלף החדש
                     
                     const newDeck = [...deck];
                     newDeck.splice(randomIndex, 1);
@@ -104,6 +115,7 @@
                 setDeck(generateInitialDeck());
                 setCurrentCard(null);
                 setFailedImages(new Set());
+                setIsLoadingImage(false);
                 setShowResetModal(false);
             };
 
@@ -174,12 +186,24 @@
                                     <div className="w-full h-full relative group perspective-1000">
                                         <div className="w-full h-full transition-transform duration-300 group-hover:scale-[1.02] flex items-center justify-center">
                                             
+                                            {/* חיווי טעינה שיופיע בזמן שהתמונה יורדת לדפדפן */}
+                                            {isLoadingImage && !failedImages.has(currentCard.id) && (
+                                                <div className="absolute inset-0 flex flex-col items-center justify-center bg-white/40 rounded-3xl z-10 backdrop-blur-sm">
+                                                    <div className="w-12 h-12 border-4 border-purple-300 border-t-purple-600 rounded-full animate-spin"></div>
+                                                </div>
+                                            )}
+                                            
                                             {currentCard.image && !failedImages.has(currentCard.id) ? (
                                                 <img 
+                                                    key={currentCard.id} // מזהה ייחודי שמכריח את הדפדפן להסיר את התמונה הישנה מיד
                                                     src={currentCard.image} 
                                                     alt={`קלף ${currentCard.id}`} 
-                                                    className="w-full h-full object-contain drop-shadow-2xl"
-                                                    onError={() => setFailedImages(prev => new Set(prev).add(currentCard.id))}
+                                                    className={`w-full h-full object-contain drop-shadow-2xl transition-opacity duration-300 ${isLoadingImage ? 'opacity-0' : 'opacity-100'}`}
+                                                    onLoad={() => setIsLoadingImage(false)}
+                                                    onError={() => {
+                                                        setIsLoadingImage(false);
+                                                        setFailedImages(prev => new Set(prev).add(currentCard.id));
+                                                    }}
                                                 />
                                             ) : (
                                                 <div className="w-full h-full rounded-3xl shadow-2xl bg-gradient-to-br from-sky-300 via-purple-300 to-pink-300 flex flex-col items-center justify-center text-white p-6">
